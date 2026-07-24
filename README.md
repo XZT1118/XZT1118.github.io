@@ -1,747 +1,247 @@
 # XZT1118.github.io
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>daily-expense-ledger 技能展示页</title>
-  <style>
-    :root {
-      --paper: #fffaf0;
-      --paper-2: #f7f0de;
-      --ink: #2f3742;
-      --muted: #697386;
-      --line: rgba(86, 151, 190, .20);
-      --blue: #61a8d8;
-      --blue-strong: #2c80b6;
-      --mint: #8fd7be;
-      --coral: #ee8d79;
-      --yellow: #f6d778;
-      --shadow: rgba(53, 43, 28, .14);
-      --card: rgba(255, 253, 247, .92);
-      --border: rgba(95, 82, 55, .18);
-    }
-
-    * { box-sizing: border-box; }
-    html { min-height: 100%; scroll-behavior: smooth; background: var(--paper-2); }
-    body {
-      min-height: 100vh;
-      margin: 0;
-      color: var(--ink);
-      background:
-        linear-gradient(90deg, rgba(238, 141, 121, .10) 0 2px, transparent 2px 100%),
-        repeating-linear-gradient(0deg, transparent 0 33px, var(--line) 34px 35px),
-        radial-gradient(circle at 20% 12%, rgba(143, 215, 190, .22), transparent 26%),
-        radial-gradient(circle at 82% 8%, rgba(246, 215, 120, .24), transparent 24%),
-        linear-gradient(180deg, #fffaf0 0%, #f6edda 100%);
-      background-size: 100% 100%, 100% 35px, 100% 100%, 100% 100%, 100% 100%;
-      font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      opacity: .42;
-      background-image:
-        radial-gradient(rgba(90, 75, 45, .10) .7px, transparent .8px),
-        radial-gradient(rgba(255, 255, 255, .56) .8px, transparent .9px);
-      background-position: 0 0, 8px 8px;
-      background-size: 18px 18px;
-      mix-blend-mode: multiply;
-    }
-
-    .site-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 10;
-      width: 100%;
-      background: rgba(255, 250, 240, .86);
-      border-bottom: 1px solid rgba(95, 82, 55, .14);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 28px rgba(53, 43, 28, .08);
-    }
-
-    .nav-inner {
-      width: min(1180px, calc(100% - 48px));
-      min-height: 74px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--blue-strong);
-      font-size: 22px;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .brand::before {
-      content: "";
-      width: 14px;
-      height: 42px;
-      border-radius: 8px;
-      background: linear-gradient(180deg, var(--coral), var(--yellow));
-      box-shadow: 18px 0 0 var(--mint), 36px 0 0 var(--blue);
-    }
-
-    .nav, .slide-nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .nav a, .slide-nav a {
-      min-height: 34px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      color: #5f6672;
-      text-decoration: none;
-      border: 1px solid transparent;
-    }
-
-    .nav a.active, .nav a:hover, .slide-nav a:hover {
-      color: var(--blue-strong);
-      background: rgba(97, 168, 216, .14);
-      border-color: rgba(97, 168, 216, .24);
-    }
-
-    .slide-nav {
-      position: fixed;
-      right: 22px;
-      top: 50%;
-      z-index: 8;
-      flex-direction: column;
-      transform: translateY(-50%);
-    }
-
-    .slide-nav a {
-      width: 42px;
-      min-height: 42px;
-      display: grid;
-      place-items: center;
-      padding: 0;
-      background: rgba(255, 253, 247, .82);
-      box-shadow: 0 8px 20px rgba(53, 43, 28, .08);
-    }
-
-    main {
-      position: relative;
-      z-index: 1;
-      width: min(1180px, calc(100% - 48px));
-      margin: 0 auto;
-      padding: 108px 0 70px;
-    }
-
-    section { scroll-margin-top: 96px; }
-    .slide { min-height: calc(100vh - 118px); display: grid; align-content: center; padding: 42px 0; }
-    .section { padding: 66px 0 18px; }
-
-    .paper-sheet {
-      position: relative;
-      padding: clamp(28px, 4vw, 54px);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background:
-        linear-gradient(90deg, rgba(238, 141, 121, .12) 0 2px, transparent 2px 100%),
-        repeating-linear-gradient(0deg, transparent 0 32px, rgba(97, 168, 216, .13) 33px 34px),
-        var(--card);
-      box-shadow: 0 24px 70px var(--shadow);
-    }
-
-    .paper-sheet::before,
-    .paper-sheet::after {
-      content: "";
-      position: absolute;
-      top: -14px;
-      width: 96px;
-      height: 28px;
-      border: 1px solid rgba(172, 132, 66, .16);
-      background: rgba(246, 215, 120, .55);
-      transform: rotate(-3deg);
-      box-shadow: 0 8px 18px rgba(53, 43, 28, .08);
-    }
-
-    .paper-sheet::before { left: 12%; }
-    .paper-sheet::after { right: 14%; transform: rotate(3deg); background: rgba(143, 215, 190, .52); }
-
-    .eyebrow, .kicker {
-      margin: 0;
-      color: var(--blue-strong);
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      line-height: 1;
-      text-transform: uppercase;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      width: fit-content;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: rgba(97, 168, 216, .12);
-      border: 1px solid rgba(97, 168, 216, .22);
-    }
-
-    .eyebrow::before {
-      content: "";
-      width: 26px;
-      height: 3px;
-      border-radius: 99px;
-      background: var(--coral);
-    }
-
-    h1, h2, h3, p { letter-spacing: 0; }
-    h1 {
-      max-width: 900px;
-      margin: 28px 0 0;
-      color: #26303c;
-      font-size: clamp(38px, 6vw, 72px);
-      font-weight: 900;
-      line-height: 1.05;
-    }
-
-    h1 span, h2 span {
-      color: var(--blue-strong);
-      background: linear-gradient(transparent 60%, rgba(246, 215, 120, .68) 60%);
-    }
-
-    h2 {
-      margin: 0 0 22px;
-      color: #27313d;
-      font-size: clamp(28px, 3vw, 42px);
-      line-height: 1.18;
-    }
-
-    h3 { margin: 0 0 12px; color: #303947; font-size: 22px; line-height: 1.35; }
-    p { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.76; }
-    .hero-lede { max-width: 780px; margin-top: 22px; color: #596274; font-size: 20px; }
-
-    .tag-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 34px;
-      padding: 7px 13px;
-      border: 1px solid rgba(97, 168, 216, .28);
-      border-radius: 999px;
-      color: #356d90;
-      background: rgba(97, 168, 216, .13);
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .tag:nth-child(3n + 2) { border-color: rgba(143, 215, 190, .36); background: rgba(143, 215, 190, .16); color: #39745f; }
-    .tag:nth-child(3n) { border-color: rgba(238, 141, 121, .34); background: rgba(238, 141, 121, .13); color: #9b564a; }
-
-    .grid { display: grid; gap: 18px; }
-    .cards-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .cards-2, .two-column { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-
-    .card, .panel, .info-card, .quote-card, .stat, .code-window, .table-wrap, .sticky-note {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: rgba(255, 253, 247, .88);
-      box-shadow: 0 14px 36px rgba(53, 43, 28, .10);
-    }
-
-    .card, .panel, .info-card, .quote-card { padding: 24px; }
-    .card, .panel { border-top: 5px solid rgba(97, 168, 216, .52); }
-    .card:nth-child(3n + 2), .panel:nth-child(2n) { border-top-color: rgba(143, 215, 190, .60); }
-    .card:nth-child(3n) { border-top-color: rgba(238, 141, 121, .58); }
-    .kicker { display: block; margin-bottom: 12px; color: #39745f; letter-spacing: 2px; }
-
-    .info-card {
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(135deg, rgba(255, 253, 247, .96), rgba(232, 247, 240, .82));
-    }
-
-    .info-card::after {
-      content: "";
-      position: absolute;
-      top: 16px;
-      right: 18px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(246, 215, 120, .66) 0 38%, transparent 40%);
-      opacity: .75;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
-      margin-top: 30px;
-    }
-
-    .stat { padding: 22px; background: rgba(255, 253, 247, .92); }
-    .stat strong { display: block; color: var(--blue-strong); font-size: 38px; line-height: 1; }
-    .stat span { display: block; margin-top: 10px; color: var(--muted); font-size: 15px; }
-
-    .sticky-note {
-      position: relative;
-      padding: 22px;
-      background: #fff3ad;
-      transform: rotate(-1deg);
-    }
-
-    .sticky-note::before {
-      content: "";
-      position: absolute;
-      top: -10px;
-      left: 36px;
-      width: 74px;
-      height: 20px;
-      border: 1px solid rgba(172, 132, 66, .15);
-      background: rgba(255, 255, 255, .48);
-      transform: rotate(2deg);
-    }
-
-    .sticky-note strong { display: block; margin-bottom: 8px; color: #805f15; font-size: 18px; }
-    .sticky-note p { color: #745d20; }
-
-    .timeline { position: relative; padding-left: 78px; }
-    .timeline::before {
-      content: "";
-      position: absolute;
-      top: 8px;
-      bottom: 8px;
-      left: 24px;
-      width: 3px;
-      border-radius: 99px;
-      background: linear-gradient(180deg, var(--blue), var(--mint), var(--coral));
-    }
-
-    .timeline-item { position: relative; min-height: 108px; margin-bottom: 30px; }
-    .timeline-item::before {
-      content: "";
-      position: absolute;
-      top: 3px;
-      left: -63px;
-      width: 18px;
-      height: 18px;
-      border: 4px solid #fffaf0;
-      border-radius: 50%;
-      background: var(--blue);
-      box-shadow: 0 0 0 2px rgba(97, 168, 216, .28);
-    }
-
-    .date { margin-bottom: 10px; color: var(--blue-strong); font-size: 15px; font-weight: 900; letter-spacing: 1px; }
-    .timeline-item h3 { font-size: 22px; font-weight: 900; }
-
-    .quote-card {
-      position: relative;
-      margin: 0;
-      border-left: 6px solid var(--coral);
-      background: rgba(255, 253, 247, .94);
-    }
-
-    .quote-card::before {
-      content: "\201C";
-      position: absolute;
-      top: 4px;
-      right: 22px;
-      color: rgba(97, 168, 216, .20);
-      font-size: 84px;
-      font-family: Georgia, serif;
-      line-height: 1;
-    }
-
-    .quote-card p { color: #3d4653; font-size: 22px; line-height: 1.62; }
-    .quote-card cite { display: block; margin-top: 16px; color: var(--blue-strong); font-style: normal; font-weight: 800; }
-
-    .table-wrap { overflow-x: auto; background: rgba(255, 253, 247, .92); }
-    table { width: 100%; border-collapse: collapse; min-width: 760px; }
-    th, td { padding: 16px 18px; border-bottom: 1px solid rgba(95, 82, 55, .14); text-align: left; vertical-align: top; }
-    th { color: #36596f; background: rgba(97, 168, 216, .13); font-size: 15px; }
-    td { color: var(--muted); font-size: 15px; line-height: 1.65; }
-    tbody tr:nth-child(even) { background: rgba(143, 215, 190, .08); }
-
-    .code-window { overflow: hidden; background: #2f3742; border-color: rgba(47, 55, 66, .22); }
-    .window-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 42px;
-      padding: 0 15px;
-      background: #424d5d;
-      color: #dfe8ed;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .window-bar span {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--coral);
-    }
-
-    .window-bar span:nth-child(2) { background: var(--yellow); }
-    .window-bar span:nth-child(3) { background: var(--mint); }
-    .window-bar b { margin-left: 8px; font-weight: 800; }
-    pre { margin: 0; padding: 22px; overflow-x: auto; }
-    code { color: #f3f7f4; font-family: Consolas, "Courier New", monospace; font-size: 14px; line-height: 1.7; }
-
-    .notebook-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 0 0 22px;
-    }
-
-    .notebook-tab {
-      padding: 9px 13px;
-      border-radius: 8px 8px 0 0;
-      color: #6a5420;
-      background: rgba(246, 215, 120, .58);
-      font-size: 14px;
-      font-weight: 900;
-    }
-
-    .layout-with-note {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
-      gap: 22px;
-      align-items: start;
-    }
-
-    .flow-row {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 28px;
-    }
-
-    .flow-step {
-      position: relative;
-      padding: 18px 16px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: rgba(255, 253, 247, .90);
-      box-shadow: 0 12px 28px rgba(53, 43, 28, .08);
-    }
-
-    .flow-step strong {
-      display: block;
-      color: var(--blue-strong);
-      font-size: 13px;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    .flow-step p { font-size: 15px; line-height: 1.55; }
-
-    .mini-list {
-      margin: 14px 0 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .mini-list li {
-      position: relative;
-      padding-left: 18px;
-      margin: 8px 0;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.55;
-    }
-
-    .mini-list li::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: .72em;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--mint);
-      transform: translateY(-50%);
-    }
-
-    @media (max-width: 1080px) {
-      .slide-nav { display: none; }
-      .flow-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 900px) {
-      .nav-inner, main { width: min(100% - 28px, 760px); }
-      .nav-inner { min-height: auto; padding: 14px 0; align-items: flex-start; flex-direction: column; }
-      .nav { flex-wrap: wrap; }
-      main { padding-top: 148px; }
-      .slide { min-height: auto; padding: 36px 0; }
-      .cards-3, .cards-2, .two-column, .stats, .layout-with-note, .flow-row { grid-template-columns: 1fr; }
-      .paper-sheet { padding: 28px 20px; }
-      .paper-sheet::before, .paper-sheet::after { width: 72px; height: 22px; }
-      .timeline { padding-left: 48px; }
-      .timeline::before { left: 16px; }
-      .timeline-item::before { left: -40px; }
-    }
-
-    @media (max-width: 560px) {
-      .brand { font-size: 18px; }
-      .nav a, .slide-nav a { padding: 7px 9px; }
-      p { font-size: 16px; }
-      .hero-lede { font-size: 18px; }
-      .card, .panel, .info-card, .quote-card, .sticky-note { padding: 20px; }
-      th, td { padding: 13px 14px; }
-    }
-  </style>
-</head>
-<body>
-  <header class="site-header">
-    <div class="nav-inner">
-      <div class="brand">Daily Expense Ledger</div>
-      <nav class="nav" aria-label="页面导航">
-        <a href="#cover">封面</a>
-        <a href="#structure">结构</a>
-        <a href="#workflow">流程</a>
-        <a href="#storage">数据</a>
-        <a href="#safety">边界</a>
-        <a href="#version">版本</a>
-      </nav>
-    </div>
-  </header>
-
-  <nav class="slide-nav" aria-label="幻灯片导航">
-    <a href="#cover">01</a>
-    <a href="#structure">02</a>
-    <a href="#workflow">03</a>
-    <a href="#storage">04</a>
-    <a href="#safety">05</a>
-    <a href="#version">06</a>
-  </nav>
-
-  <main>
-    <section class="hero slide" id="cover">
-      <div class="paper-sheet">
-        <p class="eyebrow">SKILL SHOWCASE</p>
-        <h1>随口记账，<span>认真落账</span></h1>
-        <p class="hero-lede">`daily-expense-ledger` 是一个面向日常生活消费的 Codex 技能：把口语化支出转换为可追溯的本地 Markdown 账本，并支持日结、月末账单与手机便签同步。</p>
-        <div class="tag-row">
-          <span class="tag">仅记录支出</span>
-          <span class="tag">Markdown 持久化</span>
-          <span class="tag">Python 脚本驱动</span>
-          <span class="tag">UTC+8 日期</span>
-          <span class="tag">移动端适配</span>
-        </div>
-        <div class="stats">
-          <article class="stat"><strong>3</strong><span>类目标用户：学生、工作党、家庭主妇</span></article>
-          <article class="stat"><strong>8</strong><span>个内置消费类别，支持自定义</span></article>
-          <article class="stat"><strong>3</strong><span>个可携带 Markdown 数据文件</span></article>
-          <article class="stat"><strong>1.0.3</strong><span>当前技能版本</span></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section slide" id="structure">
-      <div class="notebook-tabs" aria-hidden="true">
-        <span class="notebook-tab">触发</span>
-        <span class="notebook-tab">能力</span>
-        <span class="notebook-tab">产出</span>
-      </div>
-      <h2>内容结构：从一句话到 <span>可复用账本</span></h2>
-      <div class="grid cards-3">
-        <article class="card">
-          <h3>识别自然语言</h3>
-          <p>用户可以说“午饭花了 18 元”“昨天坐地铁 12 元”，技能提取金额、描述、日期、类别、币种和备注。</p>
-          <ul class="mini-list">
-            <li>缺金额或用途时追问，不臆造</li>
-            <li>历史日期允许补录，未来日期拒绝</li>
-          </ul>
-        </article>
-        <article class="card">
-          <h3>维护支出记录</h3>
-          <p>所有新增、查询、编辑和删除都通过 `scripts/ledger.py` 执行，避免手动改表导致账本损坏。</p>
-          <ul class="mini-list">
-            <li>记录成功返回 ID 与完整字段</li>
-            <li>重复候选必须等待用户确认</li>
-          </ul>
-        </article>
-        <article class="card">
-          <h3>生成汇总报告</h3>
-          <p>日结可按指定历史日期生成；月末账单仅在自然月最后一天可用，并保存月度快照。</p>
-          <ul class="mini-list">
-            <li>按币种分别汇总</li>
-            <li>按身份和语气定制建议</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <section class="section slide" id="workflow">
-      <h2>执行流程：小而稳的 <span>记账闭环</span></h2>
-      <div class="flow-row">
-        <article class="flow-step">
-          <strong>STEP 01</strong>
-          <p>初始化身份、默认币种和汇总语气。</p>
-        </article>
-        <article class="flow-step">
-          <strong>STEP 02</strong>
-          <p>把口语消费解析为标准字段。</p>
-        </article>
-        <article class="flow-step">
-          <strong>STEP 03</strong>
-          <p>脚本写入本地 Markdown 账本。</p>
-        </article>
-        <article class="flow-step">
-          <strong>STEP 04</strong>
-          <p>按日或月末生成报告。</p>
-        </article>
-        <article class="flow-step">
-          <strong>STEP 05</strong>
-          <p>用户确认后同步到手机便签。</p>
-        </article>
-      </div>
-      <div class="layout-with-note" style="margin-top: 22px;">
-        <article class="code-window">
-          <div class="window-bar"><span></span><span></span><span></span><b>ledger commands</b></div>
-          <pre><code>python scripts/ledger.py config show
-python scripts/ledger.py init --identity student --tone friendly
-python scripts/ledger.py add --amount 18.5 --description "午饭" --category food
-python scripts/ledger.py list --date 2026-07-21
-python scripts/ledger.py daily
-python scripts/ledger.py monthly</code></pre>
-        </article>
-        <aside class="sticky-note">
-          <strong>设计小心机</strong>
-          <p>技能把“AI 理解自然语言”和“脚本确定性落账”分开：前者灵活，后者可验证。账本这东西，浪漫归浪漫，账不能糊。</p>
-        </aside>
-      </div>
-    </section>
-
-    <section class="section slide" id="storage">
-      <h2>数据结构：三份 Markdown，<span>轻巧可携带</span></h2>
-      <div class="two-column">
-        <article class="info-card">
-          <p class="kicker">DATA LOCATION</p>
-          <h3>默认保存到用户主目录</h3>
-          <p>账本优先写入 `~/.daily-expense-ledger/`，并支持 `--data-dir` 与 `DAILY_EXPENSE_LEDGER_DATA_DIR` 指定可写目录，兼容 Android 等受限环境。</p>
-        </article>
-        <article class="info-card">
-          <p class="kicker">WRITE RULE</p>
-          <h3>只让脚本写账本</h3>
-          <p>技能明确要求所有读写通过 `ledger.py` 完成；脚本负责表格转义、重复检测、未来日期拒绝和临时文件替换写入。</p>
-        </article>
-      </div>
-      <div class="table-wrap" style="margin-top: 18px;">
-        <table>
-          <thead>
-            <tr>
-              <th>文件</th>
-              <th>保存内容</th>
-              <th>展示价值</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>`config.md`</td>
-              <td>身份、语气、默认币种、初始化时间</td>
-              <td>让汇总报告能按用户身份与交流偏好输出</td>
-            </tr>
-            <tr>
-              <td>`expenses.md`</td>
-              <td>不可变 ID、日期、金额、描述、类别、币种、备注、创建/更新时间</td>
-              <td>构成账本主数据，支持查询、编辑、删除和统计</td>
-            </tr>
-            <tr>
-              <td>`monthly_summaries.md`</td>
-              <td>按 `YYYY-MM` 分节保存的月度账单快照</td>
-              <td>同月重复生成时替换快照，避免重复堆积</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="section slide" id="safety">
-      <h2>规则边界：把“会记账”变成 <span>可靠记账</span></h2>
-      <div class="layout-with-note">
-        <div class="grid cards-2">
-          <article class="panel">
-            <h3>不记录收入</h3>
-            <p>用户输入包含收入、工资、奖金等收入关键词时，技能直接拒绝记录，保持账本语义单一。</p>
-          </article>
-          <article class="panel">
-            <h3>不抢跑确认</h3>
-            <p>重复记录、删除操作、手机便签同步都需要用户明确确认，成功与否以脚本或 MCP 返回为准。</p>
-          </article>
-          <article class="panel">
-            <h3>不合并币种</h3>
-            <p>日结和月度账单按币种分别汇总，避免把不同币种金额揉成一个看似漂亮但不真实的数字。</p>
-          </article>
-          <article class="panel">
-            <h3>不假装成功</h3>
-            <p>MCP 便签工具不存在、未授权或调用失败时，只能如实说明，不能口头声称已保存。</p>
-          </article>
-        </div>
-        <blockquote class="quote-card">
-          <p>这个技能的核心不是“多会说”，而是每次都知道自己处在等待信息、等待确认、执行中、已完成还是已失败。</p>
-          <cite>任务状态机</cite>
-        </blockquote>
-      </div>
-    </section>
-
-    <section class="section slide" id="version">
-      <h2>版本演进：从基础账本到 <span>移动端同步</span></h2>
-      <div class="timeline">
-        <article class="timeline-item">
-          <div class="date">V1.0.0</div>
-          <h3>基础功能闭环</h3>
-          <p>实现新增、查询、编辑、删除，支持日结和仅在自然月最后一天生成的月结。</p>
-        </article>
-        <article class="timeline-item">
-          <div class="date">V1.0.2</div>
-          <h3>手机端运行适配</h3>
-          <p>解决技能安装目录只读问题，引入弹性账本目录、固定 UTC+8 日期和移动端运行说明。</p>
-        </article>
-        <article class="timeline-item">
-          <div class="date">V1.0.3</div>
-          <h3>MCP 手机便签集成</h3>
-          <p>接入 `notes_create_note`，让日结和月末账单在用户确认后同步到手机系统便签。</p>
-        </article>
-      </div>
-      <div class="paper-sheet" style="margin-top: 20px;">
-        <p class="eyebrow">TAKEAWAY</p>
-        <h2>一个好 Skill 的样子：<span>职责清楚、数据可带走、失败不装作成功</span></h2>
-        <p>这份展示页按 `notebook-pages` 的纸质笔记本视觉系统制作，适合用于介绍 `daily-expense-ledger` 的内容结构、执行流程和可靠性设计。</p>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    const sections = Array.from(document.querySelectorAll("section[id]"));
-    const navLinks = Array.from(document.querySelectorAll(".nav a, .slide-nav a"));
-
-    const setActive = () => {
-      let current = sections[0]?.id;
-      for (const section of sections) {
-        const rect = section.getBoundingClientRect();
-        if (rect.top <= 140) current = section.id;
-      }
-      navLinks.forEach((link) => {
-        link.classList.toggle("active", link.getAttribute("href") === `#${current}`);
-      });
-    };
-
-    setActive();
-    window.addEventListener("scroll", setActive, { passive: true });
-  </script>
-</body>
-</html>
+name: daily-expense-ledger
+description: 记录口语化的日常生活消费，并维护包含初始化、更正、日结和自然月月末账单的本地消费账本。当学生、上班族或家庭主妇报告消费、要求修改或删除消费记录、希望日结或请求月末账单时使用此技能。本技能仅记录支出，绝不记录收入。
+
+
+每日消费记账
+
+名称
+
+daily-expense-ledger：面向学生、上班族和家庭主妇的日常支出记账技能。账本数据全部使用可携带的 Markdown 文件；所有读写必须使用 scripts/ledger.py，不得手动编辑账本表格。
+
+默认将账本保存至 Agent 用户主目录的 ~/.daily-expense-ledger/，避免 Android 等设备中只读的技能安装目录导致写入失败。先运行 config show 查看实际账本目录。若 Agent 使用其他可写目录，优先通过 DAILY_EXPENSE_LEDGER_DATA_DIR 设置该目录，或在每次命令中传入 --data-dir /可写/目录。只有检测到可写的旧版技能目录账本时，才继续使用其 data/ 目录以兼容已有数据。
+
+在 Android、System Claw 或其他受限设备上，首次使用前读取 references/mobile-runtime.md，按其中步骤确认 Python 能力、应用存储权限和账本备份位置。
+
+核心任务
+
+- 初始化并保存用户身份、默认币种和汇总语气。
+- 记录、查询、修改和删除日常消费支出。
+- 生成按日消费汇总，以及仅在自然月最后一天生成的月度账单。
+- 持久化保存全部消费历史和月度汇总快照；不记录收入。
+- 日结或月末账单生成后，询问用户是否同步至手机便签（通过 MCP notes_create_note创建笔记）。
+
+触发场景
+
+- 用户首次使用、要求设置或修改身份、默认币种、汇总语气。
+- 用户以口语描述一笔消费，例如“午饭花了 18 元”“昨天坐地铁 12 元”。
+- 用户要求更正或删除消费记录，例如“改刚才那笔”“删除那条咖啡消费”。
+- 用户说出“日结”“今日账单”“今日汇总”及等效自然语言。
+- 用户说出“月结”“月末汇总”“本月账单”及等效自然语言。
+
+信息收集
+
+初始化设置
+
+首次调用技能时，询问用户身份：学生、工作党 、家庭主妇或者自定义身份；汇总语气：友善亲切 或 严谨；以及默认币种。用户未说明币种时使用 人民币。将用户所说的中文身份、语气和人民币表述映射为对应值；
+
+询问格式如下：
+
+    👋 你好！这是「随口记账」skill 的首次使用引导。
+    
+    这个工具帮你做两件事：
+    - **随口记账**：每天记录、查询、修改和删除日常消费支出
+    - **日结**：每天生成按日消费汇总
+    - **月结**：仅在自然月最后一天生成的月度账单
+    
+    我需要了解一些信息来完成配置，请回复以下内容）：
+    
+    ———————————————
+    
+    1. 你的身份（我该怎么叫你？）
+       例：学生、工作党还是家庭主妇等等
+    
+    2. 你喜欢我怎么跟你交流（语气）
+       例：亲切友好、严肃认真、可爱贴心
+    
+    3. 你日常使用的货币种类？
+       例：默认为人民币   
+    
+    ———————————————
+    
+    直接回复就行，格式随意，我能读懂的 😊
+
+
+
+使用 config show 判断是否已初始化。
+
+    python scripts/ledger.py init --identity student --tone friendly
+    python scripts/ledger.py config show
+    python scripts/ledger.py --data-dir /可写/目录 init --identity student --tone friendly
+
+用户要求时更新设置：
+
+    python scripts/ledger.py set-config --currency USD
+    python scripts/ledger.py set-config --identity worker --tone strict
+
+消费信息
+
+从用户话语中提取金额、描述、日期、类别、币种和可选备注。日期默认使用亚洲/北京时区的当天，币种默认使用已配置的币种；类别不明确时设为 其他。类别使用 饮食、交通、购物、租房/房贷、娱乐、学习、医疗、其他；用户明确指定自定义类别时原样保留。
+
+若缺少金额或用途描述，不得臆造，应继续追问(最多追问2到3次，明确金额和用途描述)。若用户指定历史日期，使用其日期；不得记录或修改为未来日期。
+
+执行流程
+
+1. 记录消费
+
+使用 add 保存完整消费。成功后告知用户已保存的金额、类别、日期和记录 ID。
+
+    python scripts/ledger.py add --amount 18.5 --description "lunch" --category food --note "with classmates"
+    python scripts/ledger.py add --amount 12 --description "subway" --date 2026-07-20 --category transport
+
+若脚本返回 DUPLICATE_CANDIDATE，展示该重复候选记录并请求用户确认；仅在用户明确确认后，才使用 --confirm-duplicate 再次执行。
+
+2. 更正或删除记录
+
+先使用 list 定位记录并在回复中保留记录 ID。仅在没有歧义时，将“修改刚才那笔”理解为本轮对话中最新创建的记录；否则询问用户要修改哪一笔。
+
+    python scripts/ledger.py list --date 2026-07-21
+    python scripts/ledger.py edit --id ENTRY_ID --amount 15 --description "breakfast" --category food
+    python scripts/ledger.py delete --id ENTRY_ID
+
+修改后若会形成重复记录，遵循与 add 相同的确认流程。
+
+3. 生成日结
+
+识别日结触发场景后运行 daily。允许用户通过 --date YYYY-MM-DD 请求指定历史日期的日结。
+
+    python scripts/ledger.py daily
+
+日结生成后，询问用户："是否需要将此日结添加到手机便签？"。待用户确认后，调用 notes_create_note，参数 title="{YYYY-MM-DD} 日结"、content=日结报告全文。以工具返回为准——成功才说"✅ 已保存到手机便签"；失败如实说明原因，不伪造成功。
+
+4. 生成月末账单
+
+识别月结触发场景后，先检查亚洲/北京时区的当天是否为当月最后一个自然日。若不是，只说明月度账单仅在月末可用，不运行月度命令。若是，先运行 daily，再运行 monthly。
+
+    python scripts/ledger.py daily
+    python scripts/ledger.py monthly
+
+月度命令会将可替换的月度快照保存至实际账本目录中的 monthly_summaries.md。
+
+月末账单生成后，询问用户："是否需要将此月度账单添加到手机便签？"。待用户确认后，调用 notes_create_note，参数 title="{YYYY}年{MM}月账单"、content=月度账单报告全文。以工具返回为准——成功才说"✅ 已保存到手机便签"；失败如实说明原因，不伪造成功。
+
+信息冲突与任务状态
+
+信息优先级
+
+当多条信息可能冲突时，按以下优先级逐层裁决：
+
+1. 用户显式指定 > 已配置默认 > 系统推断
+   - 用户明确给出的金额、日期、类别直接使用；未指定时才回退到已配置默认值（币种、身份）；均未指定时使用系统推断（当天日期、"其他"类别）。
+2. 当前输入 > 历史对话隐含信息
+   - "改刚才那笔"指向本轮对话中最新创建的记录；若本轮有多次创建，以最近一次为准。存在歧义时先列出候选让用户选择，不得猜测。
+3. 命令参数 > 环境变量 > 默认路径
+   - 账本目录优先级：--data-dir > DAILY_EXPENSE_LEDGER_DATA_DIR > ~/.daily-expense-ledger/ > 旧版技能目录兼容模式。config show 输出实际生效的目录及来源。
+4. 显式日期 > 默认今天；历史 ✅ / 未来 ❌
+   - 用户指定日期时使用其日期；未指定默认亚洲/北京时区当天。允许历史日期补录；拒绝未来日期（含修改为未来日期），立即报错并说明原因。
+
+任务状态
+
+模型在对话中跟踪任务状态，确保每一步处于明确的阶段，不跳跃、不遗漏：
+
+  状态  	含义                        	模型行为                                 
+  等待信息	缺少金额或描述等必要字段              	追问用户（最多 2-3 次），明确需要补充的具体字段           
+  等待确认	检测到重复候选、删除操作、MCP 同步等需要用户决策	展示候选/预览，等待用户明确确认（"确认""可以""执行"等），不自动继续
+  执行中 	已发出命令，等待脚本或 MCP 返回        	不再重复发起同一操作，静待返回                      
+  已完成 	操作成功返回                    	报告结果（含记录 ID、金额、日期等），状态流转至下一任务或结束     
+  已失败 	操作返回错误或异常                 	如实报告失败原因，给出下一步选项（重试/修正参数/放弃）；不得口头声称成功
+
+状态流转规则：
+
+- 等待信息 → 执行中：用户补齐信息后立即执行
+- 等待确认 → 执行中：用户确认后执行；用户拒绝则结束当前任务
+- 执行中 → 已完成：命令或 MCP 返回成功
+- 执行中 → 已失败：命令或 MCP 返回错误
+- 已失败 → 等待信息 / 等待确认：根据失败原因决定是否需要重新收集信息或确认
+
+重复执行与失败处理
+
+幂等处理
+
+- 添加消费：同日期 + 同金额 + 同描述（case-insensitive）视为重复。脚本返回 DUPLICATE_CANDIDATE 时，展示候选记录，等待用户确认后才加 --confirm-duplicate 执行。不得在用户未确认时自动跳过或静默去重。
+- 修改消费：修改后若与另一条已有记录形成重复，同样触发 DUPLICATE_CANDIDATE，遵循与添加相同的确认流程。
+- 日结/月结：同一天多次执行日结，每次重新计算并输出最新报告；月末账单重复执行时，monthly_summaries.md 中对应月份的旧快照被替换，不产生重复条目。
+- 初始化：已初始化时 init 拒绝覆盖（除非 --force）；日常配置变更使用 set-config。
+- MCP 便签同步：每次用户确认后创建一条新便签，不检查手机端是否已有同名便签。若用户多次确认会产生多条便签——在询问前可提示"今日已同步过，是否再次创建？"
+
+工具未开放
+
+- MCP 工具（如 notes_create_note）在当前运行环境中可能未注册或不可用。调用前不假设工具一定存在；调用失败时如实告知用户"当前环境不支持手机便签同步"，不得口头声称"已保存"。
+- Skill 仅依赖 notes_create_note；notes_delete_note 和 notes_update_note 已知不可用——不在流程中设计对它们的调用。
+- ledger.py 脚本本身不依赖 MCP，即使 MCP 全部不可用，本地记账功能仍完整可用。
+
+权限不足
+
+- 脚本写入 EACCES / 目录不可写：不反复重试同一目录。提示用户授予 Agent 存储权限，或使用 --data-dir / DAILY_EXPENSE_LEDGER_DATA_DIR 切换到可写目录。
+- MCP 权限弹窗（短信/联系人/存储等）：本 Skill 仅使用 Notes Provider，不涉及高风险权限；若运行时触发系统权限弹窗，等待用户授权后继续，不得假设已静默授权。
+- Android 受限设备：参照 references/mobile-runtime.md，首次使用前确认 Python 可用性和存储权限。
+
+部分失败
+
+当多步操作中某一步失败时，已完成的操作不回滚，逐项汇报：
+
+- 日结 + MCP 同步：日结报告生成成功但 MCP 便签创建失败 → 先展示日结内容，再说明"便签同步失败：{原因}"。日结数据已保存，用户可稍后重试同步。
+- 月结流程：daily 成功但 monthly 失败 → 日结结果保留，说明月度账单生成失败原因。若 daily 失败则不继续执行 monthly。
+- 连续记录多笔：逐笔执行，每笔独立报告成功或失败；前一笔失败不影响后续记录。
+
+返回结果不明确
+
+- 脚本输出既是结构化文本又是人类可读报告，无机器可解析的结构化标记。模型应以脚本 stdout 内容为准判断成功/失败，不以 exit code 为唯一依据。
+- DUPLICATE_CANDIDATE 是特殊的"中间状态"——不是失败，需要用户决策。
+- MCP 返回结果以工具实际返回为准。若返回信息不完整（如无明确 success/error 标记），按保守原则处理：有确认性输出（如返回了 note id）视为成功；无输出或超时视为失败，提示用户去手机对应 App 核对。
+
+MCP 工具依赖
+
+工具不存在/未授权/调用失败时，不得伪造成功。
+
+Notes Provider（同步日结/月末账单到手机便签）
+
+  工具名              	用途               	关键参数         
+  notes_create_note	将日结或月度账单保存为手机便签笔记	title、content
+
+参数约定：
+
+- title：日结为 {YYYY-MM-DD} 日结；月结为 {YYYY}年{MM}月账单
+- content：完整的日结或月度账单报告文本（与命令行输出一致）
+
+调用前必须先经用户确认（"是否需要添加到手机便签？"），确认后才执行；以工具返回为准，成功才说已保存。
+
+规则边界
+
+- 仅记录支出（用户输入中包含'卖''收入''赚'等收入信息时直接拒绝记录）；不得记录收入、预算、道德评判。
+- 保留全部历史数据；不得批量清空或归档全部消费记录（用户在输入删除命令后，再次询问用户是否确认删除，待用户确认后使用 delete --id 命令删除对应）。
+- 用户可使用默认币种，或使用 --currency 覆盖单笔消费币种。
+- 月度报告必须按币种分别汇总；不得合并不同币种金额。
+- 用户需要命令字段定义、数据结构或解析示例时，读取 references/commands.md。
+- 同一账本目录一次只能由一个 Agent 进程写入；同步、卸载应用或清理应用数据前，应备份三个 Markdown 数据文件。
+
+输出格式
+
+- 记录成功：输出记录 ID、日期、描述、金额与币种、类别和备注（如有）。
+- 日结：按已配置的身份和语气输出消费明细、各币种总额、分类小计、金额最高的类别以及简短的建议。
+- 月末账单：在日结后输出自然月消费明细、各币种总额、分类小计、金额最高的类别、日均消费和消费最高日以及简短的建议。
+- 异常或待确认：清晰说明缺失字段、未来日期、重复候选或未到月末的原因，并告知用户下一步需要提供或确认的内容。
+
+版本迭代与更新
+
+V1.0.0 — 基础功能（随口记账 + 日结 + 月结）
+
+- 实现核心记账闭环：add（记录）、list（查询）、edit（修改）、delete（删除）。
+- 支持 daily 生成日结报告、monthly 生成月末账单（仅自然月最后一天可用）。
+- 数据持久化为三个可携带 Markdown 文件（config.md、expenses.md、monthly_summaries.md）。
+- 内置重复检测（同日期 + 同金额 + 同描述）、未来日期拒绝、收入关键词过滤。
+- 支持多币种分别汇总、按身份（学生/上班族/家庭主妇）定制分类排序和语气。
+
+V1.0.2 — 手机端运行适配
+
+- 解决 Android / System Claw 等受限设备上技能安装目录只读导致的写入失败问题。
+- 实现账本目录弹性选择：--data-dir > 环境变量 DAILY_EXPENSE_LEDGER_DATA_DIR > ~/.daily-expense-ledger/ > 旧版兼容目录。
+- 使用固定 UTC+8 时区（Asia/Beijing），不依赖 Android tzdata 包。
+- 新增 references/mobile-runtime.md，指导受限设备上的 Python 环境检测、存储权限和备份策略。
+
+V1.0.3 — MCP 手机便签集成
+
+- 接入 DroiClaw MCP notes_create_note，支持将日结和月度账单一键同步至手机系统便签。
+- 同步前必须经用户确认；以 MCP 实际返回为准，失败时如实告知而非口头声称成功。
+- 明确 MCP 能力边界：仅依赖 notes_create_note，不设计对 notes_delete_note、notes_update_note 的调用。
+- 新增"信息冲突与任务状态"和"重复执行与失败处理"章节，系统化覆盖优先级裁决、任务状态机、幂等、工具未开放、权限不足、部分失败和返回结果不明确等场景。
